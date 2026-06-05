@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hueveria Dori</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0d;--bg2:#151515;--bg3:#1c1c1c;--card:#181818;--border:#2a2a2a;--border2:#383838;--amber:#f59e0b;--amber2:#d97706;--amber3:#fbbf24;--amberDim:#f59e0b22;--green:#22c55e;--greenDim:#22c55e22;--red:#ef4444;--redDim:#ef444422;--blue:#60a5fa;--blueDim:#60a5fa22;--purple:#a78bfa;--purpleDim:#a78bfa22;--text:#f5f0e8;--text2:#a09080;--text3:#504030;--mono:'DM Mono',monospace;--sans:'Syne',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+#login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
+.login-box{width:90%;max-width:320px;text-align:center}
+.login-egg{font-size:48px;margin-bottom:16px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.login-title{font-size:24px;font-weight:700;color:var(--amber);letter-spacing:.02em;margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--text3);margin-bottom:32px;letter-spacing:.05em;text-transform:uppercase}
+.login-input{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:22px;padding:14px;width:100%;text-align:center;letter-spacing:.3em;outline:none;font-family:var(--mono);margin-bottom:10px;transition:border .15s}
+.login-input:focus{border-color:var(--amber2)}
+.login-btn{background:var(--amber2);color:#000;border:none;border-radius:10px;font-family:var(--sans);font-size:15px;font-weight:700;padding:14px;width:100%;cursor:pointer;transition:all .15s}
+.login-btn:hover{background:var(--amber3)}
+.login-error{color:var(--red);font-size:12px;margin-top:10px;min-height:18px;font-family:var(--mono)}
+.nav{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 10px;height:50px}
+.nav-logo{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--amber);letter-spacing:.03em}
+.nav-logo span{color:var(--text3);font-weight:400}
+.nav-tabs{display:flex;gap:1px;overflow-x:auto}
+.nav-tab{background:none;border:none;color:var(--text3);font-family:var(--sans);font-size:11px;font-weight:600;padding:5px 9px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.nav-tab.active{background:var(--bg3);color:var(--amber)}
+.view{display:none;padding:10px;max-width:800px;margin:0 auto;padding-bottom:40px}
+.view.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px}
+.card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:10px}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:10px}
+@media(min-width:400px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.kpi-val{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--amber);line-height:1}
+.kpi-val.green{color:var(--green)}.kpi-val.red{color:var(--red)}.kpi-val.blue{color:var(--blue)}.kpi-val.purple{color:var(--purple)}
+.kpi-lbl{font-size:10px;color:var(--text3);margin-top:3px}
+.stock-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+.stock-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px}
+.stock-tipo{font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.stock-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.stock-label{font-size:11px;color:var(--text2)}
+.stock-val{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--text)}
+.stock-val.warn{color:var(--red)}
+.stock-divider{border:none;border-top:1px solid var(--border);margin:6px 0}
+input,select{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--sans);font-size:14px;padding:8px 10px;width:100%;outline:none;transition:border .15s;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--amber2)}
+input[type=number]{font-family:var(--mono)}
+select option{background:var(--bg3)}
+.field{margin-bottom:8px}
+.field-label{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{border:none;border-radius:8px;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all .15s;font-size:13px;padding:9px 14px;letter-spacing:.02em}
+.btn-primary{background:var(--amber2);color:#000;width:100%;margin-top:6px}
+.btn-primary:hover{background:var(--amber3)}
+.btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--amber2);color:var(--amber)}
+.btn-danger{background:var(--redDim);border:1px solid #ef444444;color:var(--red)}
+.btn-sm{font-size:11px;padding:5px 10px;border-radius:6px}
+.btn-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.badge{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
+.badge-green{background:var(--greenDim);color:var(--green)}
+.badge-red{background:var(--redDim);color:var(--red)}
+.badge-yellow{background:var(--amberDim);color:var(--amber)}
+.badge-blue{background:var(--blueDim);color:var(--blue)}
+.badge-purple{background:var(--purpleDim);color:var(--purple)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:6px;border-bottom:1px solid var(--border)}
+.tbl th.r,.tbl td.r{text-align:right}
+.tbl td{padding:7px 6px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg3)}
+.alert{border-radius:8px;padding:9px 12px;font-size:12px;margin-bottom:8px;line-height:1.5}
+.alert-green{background:var(--greenDim);color:var(--green);border:1px solid #22c55e33}
+.alert-amber{background:var(--amberDim);color:var(--amber);border:1px solid #f59e0b33}
+.alert-red{background:var(--redDim);color:var(--red);border:1px solid #ef444433}
+.alert-blue{background:var(--blueDim);color:var(--blue);border:1px solid #60a5fa33}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:14px 14px 0 0;padding:18px 14px 30px;width:100%;max-width:600px;max-height:88vh;overflow-y:auto}
+.modal-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:var(--bg3);border:none;color:var(--text2);font-size:18px;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sdiv{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);padding:10px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+.totals-bar{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-bottom:10px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.t-item{text-align:center;min-width:55px}
+.t-val{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--amber)}
+.t-lbl{font-size:10px;color:var(--text3);margin-top:1px}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;font-size:14px}
+.del-btn:hover{color:var(--red)}
+.mono{font-family:var(--mono)}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-egg">&#x1F95A;</div>
+    <div class="login-title">Huever&#237;a Dori</div>
+    <div class="login-sub">Panel administrativo</div>
+    <input class="login-input" type="password" id="login-pass" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" maxlength="20">
+    <button class="login-btn" id="login-btn">Ingresar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-logo">DORI <span>/ huever&#237;a</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-stock">Stock</button>
+    <button class="nav-tab" id="tab-ventas">Ventas</button>
+    <button class="nav-tab" id="tab-clientes">Clientes</button>
+    <button class="nav-tab" id="tab-balance">Balance</button>
+    <button class="nav-tab" id="tab-config">Config</button>
+    <button class="nav-tab" id="tab-backup" style="color:var(--amber3)">&#x1F4BE;</button>
+  </div>
+</nav>
+
+<div id="view-stock" class="view active">
+  <div class="kpi-grid" id="stock-kpis"></div>
+  <div id="stock-cards"></div>
+  <div class="btn-row" style="margin-bottom:10px">
+    <button class="btn btn-ghost btn-sm" id="btn-ingreso">+ Ingreso mercader&#237;a</button>
+    <button class="btn btn-ghost btn-sm" id="btn-fraccionar">&#x2702; Fraccionar &#189; docena</button>
+  </div>
+  <div class="card">
+    <div class="card-title">&#218;ltimos ingresos</div>
+    <div id="ultimos-ingresos"></div>
+  </div>
+</div>
+
+<div id="view-ventas" class="view">
+  <div class="btn-row" style="margin-bottom:10px">
+    <button class="btn btn-ghost btn-sm" id="btn-venta-may">+ Venta mayorista</button>
+    <button class="btn btn-ghost btn-sm" id="btn-venta-maple">+ Maple suelto</button>
+    <button class="btn btn-ghost btn-sm" id="btn-venta-md">+ Media docena</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Ventas recientes</div>
+    <div id="ventas-lista"></div>
+  </div>
+</div>
+
+<div id="view-clientes" class="view">
+  <div id="clientes-resumen" style="margin-bottom:10px"></div>
+  <div class="card">
+    <div class="card-title">Cuentas corrientes</div>
+    <div id="clientes-lista"></div>
+  </div>
+</div>
+
+<div id="view-balance" class="view">
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-title">Per&#237;odo</div>
+    <div class="grid2">
+      <div class="field"><div class="field-label">Desde</div><input type="date" id="bal-desde"></div>
+      <div class="field"><div class="field-label">Hasta</div><input type="date" id="bal-hasta"></div>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="btn-balance" style="margin-top:6px">Ver balance</button>
+  </div>
+  <div id="balance-content"></div>
+</div>
+
+<div id="view-config" class="view">
+  <div class="card">
+    <div class="card-title">Costo de cajones</div>
+    <div id="config-costos"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Precios referencia maple suelto</div>
+    <div id="config-maples"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Media docena en cajita</div>
+    <div class="grid2">
+      <div class="field"><div class="field-label">Costo cajita $</div><input type="number" id="cfg-cajita" min="0"></div>
+      <div class="field"><div class="field-label">Precio venta $</div><input type="number" id="cfg-md-precio" min="0"></div>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="btn-guardar-config" style="margin-top:6px">Guardar</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Backup</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Export&#225; para no perder datos.</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost btn-sm" id="btn-export">&#x2B07; Exportar backup</button>
+      <button class="btn btn-ghost btn-sm" id="btn-import-trigger">&#x2B06; Importar backup</button>
+      <input type="file" id="imp-file" accept=".json" style="display:none">
+    </div>
+    <div id="cfg-msg" style="display:none;margin-top:8px" class="alert alert-green"></div>
+  </div>
+</div>
+
+<div id="modal-bg" class="modal-bg">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-title-text">&#x2014;</span>
+      <button class="modal-close" id="modal-close-btn">&#x2715;</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+
+// ── HELPERS ──────────────────────────────────────────────────────────
+function ge(id) { return document.getElementById(id); }
+function fmt(n) { return '$' + Math.round(n || 0).toLocaleString('es-AR'); }
+function today() { return new Date().toISOString().slice(0, 10); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+function fmtF(f) {
+  if (!f) return '-';
+  var p = f.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0].slice(2);
+}
+function labelTipo(id) {
+  var t = TIPOS.find(function(x) { return x.id === id; });
+  return t ? t.label : id;
+}
+
+// ── SEED DATA ─────────────────────────────────────────────────────────
+var TIPOS = [
+  { id: 'blanco_chico', label: 'Blanco Chico 1.8kg' },
+  { id: 'blanco_grande', label: 'Blanco Grande 2kg' },
+  { id: 'blanco_super', label: 'Blanco Super +2kg' },
+  { id: 'color', label: 'Color 2kg' }
+];
+
+function seedStock() {
+  return {
+    blanco_chico: { cajones: 0, maples_sueltos: 0 },
+    blanco_grande: { cajones: 0, maples_sueltos: 0 },
+    blanco_super:  { cajones: 0, maples_sueltos: 0 },
+    color:         { cajones: 0, maples_sueltos: 0 },
+    medias_docenas: 0
+  };
+}
+
+function seedConfig() {
+  return {
+    costos: { blanco_chico: 45000, blanco_grande: 45000, blanco_super: 45000, color: 56000 },
+    precios_maple: { blanco_chico: 5000, blanco_grande: 6000, blanco_super: 6500, color: 6500 },
+    precio_media_docena: 1300,
+    costo_cajita: 350,
+    maples_x_cajon: 12,
+    huevos_x_maple: 30
+  };
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+function hashStr(s) {
+  var r = 0;
+  for (var i = 0; i < s.length; i++) {
+    r = ((r << 5) - r) + s.charCodeAt(i);
+    r = r | 0;
+  }
+  return r.toString();
+}
+var HASH = '648201633';
+var AUTH_KEY = 'dori_auth_v1';
+
+function checkLogin() {
+  var val = ge('login-pass').value;
+  if (hashStr(val) === HASH) {
+    localStorage.setItem(AUTH_KEY, HASH);
+    ge('login-screen').style.display = 'none';
+    appInit();
+  } else {
+    var e = ge('login-error');
+    e.textContent = 'Contrasena incorrecta';
+    ge('login-pass').value = '';
+    setTimeout(function() { e.textContent = ''; }, 2500);
+  }
+}
+
+// ── STORAGE ───────────────────────────────────────────────────────────
+var SK = 'dori_v2';
+var ST = null;
+
+function loadST() {
+  try {
+    var d = localStorage.getItem(SK);
+    return d ? JSON.parse(d) : null;
+  } catch(e) { return null; }
+}
+function saveST() {
+  try { localStorage.setItem(SK, JSON.stringify(ST)); } catch(e) {}
+}
+function initST() {
+  var s = loadST();
+  if (s && s.version === 2) { ST = s; return; }
+  ST = {
+    version: 2,
+    config: seedConfig(),
+    stock: seedStock(),
+    ingresos: [],
+    ventas: [],
+    clientes: []
+  };
+  saveST();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────
+function openModal(titulo, html) {
+  ge('modal-title-text').textContent = titulo;
+  ge('modal-body').innerHTML = html;
+  ge('modal-bg').classList.add('open');
+}
+function closeModal() {
+  ge('modal-bg').classList.remove('open');
+  ge('modal-body').innerHTML = '';
+}
+function confirmar(msg, cb) {
+  var html = '<p style="font-size:14px;color:var(--text);line-height:1.6;margin-bottom:20px">' + msg + '</p>' +
+    '<div class="btn-row">' +
+    '<button id="confirm-yes" class="btn btn-danger" style="flex:1">Si, eliminar</button>' +
+    '<button id="confirm-no" class="btn btn-ghost" style="flex:1">Cancelar</button>' +
+    '</div>';
+  openModal('Confirmar', html);
+  ge('confirm-yes').addEventListener('click', function() { closeModal(); cb(); });
+  ge('confirm-no').addEventListener('click', closeModal);
+}
+
+// ── VISTAS ────────────────────────────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+  ge('view-' + name).classList.add('active');
+  ge('tab-' + name).classList.add('active');
+  if (name === 'stock') renderStock();
+  if (name === 'ventas') renderVentas();
+  if (name === 'clientes') renderClientes();
+  if (name === 'balance') renderBalance();
+  if (name === 'config') renderConfig();
+}
+
+// ── STOCK ─────────────────────────────────────────────────────────────
+function maplesTotal(id) {
+  var s = ST.stock[id];
+  return s.cajones * ST.config.maples_x_cajon + s.maples_sueltos;
+}
+function descontarMaples(id, cantidad) {
+  var total = maplesTotal(id) - cantidad;
+  if (total < 0) total = 0;
+  ST.stock[id].cajones = Math.floor(total / ST.config.maples_x_cajon);
+  ST.stock[id].maples_sueltos = total % ST.config.maples_x_cajon;
+}
+
+function renderStock() {
+  var totalCaj = TIPOS.reduce(function(s, t) { return s + ST.stock[t.id].cajones; }, 0);
+  var totalMap = TIPOS.reduce(function(s, t) { return s + maplesTotal(t.id); }, 0);
+  var totalHuevos = totalMap * ST.config.huevos_x_maple;
+  var md = ST.stock.medias_docenas || 0;
+
+  ge('stock-kpis').innerHTML =
+    '<div class="kpi"><div class="kpi-val">' + totalCaj + '</div><div class="kpi-lbl">Cajones</div></div>' +
+    '<div class="kpi"><div class="kpi-val">' + totalMap + '</div><div class="kpi-lbl">Maples</div></div>' +
+    '<div class="kpi"><div class="kpi-val blue">' + totalHuevos.toLocaleString('es-AR') + '</div><div class="kpi-lbl">Huevos</div></div>' +
+    '<div class="kpi"><div class="kpi-val purple">' + md + '</div><div class="kpi-lbl">1/2 Doc.</div></div>';
+
+  var cards = '<div class="stock-grid">';
+  TIPOS.forEach(function(t) {
+    var s = ST.stock[t.id];
+    var mp = maplesTotal(t.id);
+    var warn = s.cajones <= 1 ? ' warn' : '';
+    cards += '<div class="stock-card">' +
+      '<div class="stock-tipo">' + t.label + '</div>' +
+      '<div class="stock-row"><span class="stock-label">Cajones</span><span class="stock-val' + warn + '">' + s.cajones + '</span></div>' +
+      '<div class="stock-row"><span class="stock-label">Maples sueltos</span><span class="stock-val">' + s.maples_sueltos + '</span></div>' +
+      '<hr class="stock-divider">' +
+      '<div class="stock-row"><span class="stock-label">Total maples</span><span class="stock-val">' + mp + '</span></div>' +
+      '<div class="stock-row"><span class="stock-label">Huevos</span><span class="stock-val">' + (mp * ST.config.huevos_x_maple).toLocaleString('es-AR') + '</span></div>' +
+      '</div>';
+  });
+  cards += '</div>';
+  ge('stock-cards').innerHTML = cards;
+
+  var ingresos = ST.ingresos.slice().reverse().slice(0, 10);
+  if (!ingresos.length) {
+    ge('ultimos-ingresos').innerHTML = '<div class="empty">Sin ingresos registrados</div>';
+    return;
+  }
+  var tbl = '<table class="tbl"><thead><tr><th>Fecha</th><th>Tipo</th><th class="r">Cajones</th><th class="r">Costo</th><th></th></tr></thead><tbody>';
+  ingresos.forEach(function(ing) {
+    tbl += '<tr>' +
+      '<td style="font-family:var(--mono);font-size:10px;color:var(--text3)">' + fmtF(ing.fecha) + '</td>' +
+      '<td>' + labelTipo(ing.tipo) + '</td>' +
+      '<td class="r mono">' + ing.cajones + '</td>' +
+      '<td class="r mono">' + fmt(ing.costo_total) + '</td>' +
+      '<td><button class="del-btn" data-id="' + ing.id + '" data-action="del-ingreso">&#x2715;</button></td>' +
+      '</tr>';
+  });
+  tbl += '</tbody></table>';
+  ge('ultimos-ingresos').innerHTML = tbl;
+}
+
+function abrirIngreso() {
+  var opts = TIPOS.map(function(t) {
+    return '<option value="' + t.id + '">' + t.label + '</option>';
+  }).join('');
+  var html =
+    '<div class="field"><div class="field-label">Fecha</div><input type="date" id="ing-fecha" value="' + today() + '"></div>' +
+    '<div class="field"><div class="field-label">Tipo de huevo</div><select id="ing-tipo">' + opts + '</select></div>' +
+    '<div class="field"><div class="field-label">Cantidad de cajones</div><input type="number" id="ing-cajones" value="1" min="1"></div>' +
+    '<div class="field"><div class="field-label">Costo por cajón $</div><input type="number" id="ing-costo" value="45000" min="0"></div>' +
+    '<div id="ing-prev" class="alert alert-amber" style="display:none;margin-bottom:8px"></div>' +
+    '<button id="btn-guard-ing" class="btn btn-primary">&#x2713; Registrar ingreso</button>';
+  openModal('Ingreso de mercaderia', html);
+
+  function prev() {
+    var c = parseFloat(ge('ing-cajones').value) || 0;
+    var p = parseFloat(ge('ing-costo').value) || 0;
+    var el = ge('ing-prev');
+    if (!el) return;
+    if (c && p) {
+      el.style.display = 'block';
+      el.textContent = 'Total: ' + fmt(c * p) + ' | ' + (c * ST.config.maples_x_cajon) + ' maples';
+    } else { el.style.display = 'none'; }
+  }
+
+  ge('ing-cajones').addEventListener('input', prev);
+  ge('ing-costo').addEventListener('input', prev);
+  ge('ing-tipo').addEventListener('change', function() {
+    ge('ing-costo').value = ST.config.costos[ge('ing-tipo').value] || '';
+    prev();
+  });
+  ge('ing-costo').value = ST.config.costos[TIPOS[0].id];
+  prev();
+
+  ge('btn-guard-ing').addEventListener('click', function() {
+    var fecha = ge('ing-fecha').value;
+    var tipo = ge('ing-tipo').value;
+    var cajones = parseInt(ge('ing-cajones').value) || 0;
+    var costo = parseFloat(ge('ing-costo').value) || 0;
+    if (!cajones || !costo) { alert('Completá todos los campos'); return; }
+    ST.ingresos.push({ id: uid(), fecha: fecha, tipo: tipo, cajones: cajones, costo_x_cajon: costo, costo_total: cajones * costo });
+    ST.stock[tipo].cajones += cajones;
+    saveST(); closeModal(); renderStock();
+  });
+}
+
+function abrirFraccionar() {
+  var disp = maplesTotal('blanco_chico');
+  var html =
+    '<div class="alert alert-blue" style="margin-bottom:10px">Stock blanco chico disponible: <strong>' + disp + ' maples</strong><br>Cada maple rinde 5 medias docenas (30 huevos / 6).</div>' +
+    '<div class="field"><div class="field-label">Maples a fraccionar</div><input type="number" id="frac-m" value="1" min="1" max="' + disp + '"></div>' +
+    '<div id="frac-prev" class="alert alert-amber" style="display:none;margin-bottom:8px"></div>' +
+    '<button id="btn-guard-frac" class="btn btn-primary">&#x2713; Fraccionar</button>';
+  openModal('Fraccionar media docena', html);
+
+  ge('frac-m').addEventListener('input', function() {
+    var m = parseInt(ge('frac-m').value) || 0;
+    var el = ge('frac-prev');
+    if (m > 0) {
+      el.style.display = 'block';
+      el.textContent = 'Rinde: ' + (m * 5) + ' medias docenas | Costo cajitas: ' + fmt(m * 5 * ST.config.costo_cajita);
+    } else { el.style.display = 'none'; }
+  });
+
+  ge('btn-guard-frac').addEventListener('click', function() {
+    var m = parseInt(ge('frac-m').value) || 0;
+    if (m <= 0 || m > disp) { alert('Cantidad invalida. Disponible: ' + disp); return; }
+    descontarMaples('blanco_chico', m);
+    ST.stock.medias_docenas = (ST.stock.medias_docenas || 0) + m * 5;
+    saveST(); closeModal(); renderStock();
+  });
+}
+
+// ── VENTAS ────────────────────────────────────────────────────────────
+function renderVentas() {
+  var ventas = ST.ventas.slice().reverse().slice(0, 30);
+  if (!ventas.length) {
+    ge('ventas-lista').innerHTML = '<div class="empty">Sin ventas registradas</div>';
+    return;
+  }
+  var tbl = '<table class="tbl"><thead><tr><th>Fecha</th><th>Detalle</th><th class="r">Total</th><th>Pago</th><th>Estado</th><th></th></tr></thead><tbody>';
+  ventas.forEach(function(v) {
+    var eClass = v.estado === 'completo' ? 'badge-green' : v.estado === 'parcial' ? 'badge-yellow' : 'badge-red';
+    var eLabel = v.estado === 'completo' ? 'Cobrado' : v.estado === 'parcial' ? 'Parcial' : 'Pendiente';
+    var pClass = v.forma_pago === 'efectivo' ? 'badge-green' : v.forma_pago === 'transferencia' ? 'badge-blue' : 'badge-purple';
+    var pLabel = v.forma_pago === 'efectivo' ? 'Efvo' : v.forma_pago === 'transferencia' ? 'Trans' : 'Cta.Cte';
+    tbl += '<tr>' +
+      '<td style="font-family:var(--mono);font-size:10px;color:var(--text3)">' + fmtF(v.fecha) + '</td>' +
+      '<td style="color:var(--text);font-size:11px">' + v.detalle + '</td>' +
+      '<td class="r mono" style="color:var(--amber)">' + fmt(v.total) + '</td>' +
+      '<td><span class="badge ' + pClass + '">' + pLabel + '</span></td>' +
+      '<td><span class="badge ' + eClass + '" style="cursor:pointer" data-id="' + v.id + '" data-action="toggle-estado">' + eLabel + '</span></td>' +
+      '<td><button class="del-btn" data-id="' + v.id + '" data-action="del-venta">&#x2715;</button></td>' +
+      '</tr>';
+  });
+  tbl += '</tbody></table>';
+  ge('ventas-lista').innerHTML = tbl;
+}
+
+function abrirVenta(tipo) {
+  var tipoOpts = TIPOS.map(function(t) {
+    return '<option value="' + t.id + '">' + t.label + '</option>';
+  }).join('');
+  var clienteOpts = '<option value="">Sin nombre (contado)</option>' +
+    ST.clientes.map(function(c) {
+      return '<option value="' + c.id + '">' + c.nombre + '</option>';
+    }).join('');
+
+  var html = '';
+  if (tipo === 'mayorista') {
+    html =
+      '<div class="field"><div class="field-label">Fecha</div><input type="date" id="v-fecha" value="' + today() + '"></div>' +
+      '<div class="field"><div class="field-label">Cliente existente</div><select id="v-cliente">' + clienteOpts + '</select></div>' +
+      '<div class="field"><div class="field-label">O nombre nuevo</div><input type="text" id="v-cli-nuevo" placeholder="Ej: Kiosco Don Juan"></div>' +
+      '<div class="grid2">' +
+        '<div class="field"><div class="field-label">Tipo de huevo</div><select id="v-tipo">' + tipoOpts + '</select></div>' +
+        '<div class="field"><div class="field-label">Cajones</div><input type="number" id="v-cajones" value="1" min="0.5" step="0.5"></div>' +
+      '</div>' +
+      '<div class="field"><div class="field-label">Precio por cajón $</div><input type="number" id="v-precio" value="56000" min="0"></div>' +
+      '<div class="field"><div class="field-label">Forma de pago</div><select id="v-pago"><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="cuenta_corriente">Cuenta corriente</option></select></div>' +
+      '<div id="v-prev" class="alert alert-amber" style="display:none;margin-bottom:8px"></div>' +
+      '<button id="btn-guard-v" class="btn btn-primary">&#x2713; Registrar venta</button>';
+  } else if (tipo === 'maple') {
+    html =
+      '<div class="field"><div class="field-label">Fecha</div><input type="date" id="v-fecha" value="' + today() + '"></div>' +
+      '<div class="grid2">' +
+        '<div class="field"><div class="field-label">Tipo</div><select id="v-tipo">' + tipoOpts + '</select></div>' +
+        '<div class="field"><div class="field-label">Maples</div><input type="number" id="v-maples" value="1" min="1"></div>' +
+      '</div>' +
+      '<div class="field"><div class="field-label">Precio por maple $</div><input type="number" id="v-precio" value="5000" min="0"></div>' +
+      '<div class="field"><div class="field-label">Forma de pago</div><select id="v-pago"><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option></select></div>' +
+      '<div id="v-prev" class="alert alert-amber" style="display:none;margin-bottom:8px"></div>' +
+      '<button id="btn-guard-v" class="btn btn-primary">&#x2713; Registrar venta</button>';
+  } else {
+    var mdStock = ST.stock.medias_docenas || 0;
+    html =
+      '<div class="alert alert-blue" style="margin-bottom:10px">Stock disponible: <strong>' + mdStock + ' medias docenas</strong></div>' +
+      '<div class="field"><div class="field-label">Fecha</div><input type="date" id="v-fecha" value="' + today() + '"></div>' +
+      '<div class="field"><div class="field-label">Cantidad</div><input type="number" id="v-md-cant" value="1" min="1"></div>' +
+      '<div class="field"><div class="field-label">Precio por media docena $</div><input type="number" id="v-precio" value="' + ST.config.precio_media_docena + '" min="0"></div>' +
+      '<div class="field"><div class="field-label">Forma de pago</div><select id="v-pago"><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option></select></div>' +
+      '<div id="v-prev" class="alert alert-amber" style="display:none;margin-bottom:8px"></div>' +
+      '<button id="btn-guard-v" class="btn btn-primary">&#x2713; Registrar venta</button>';
+  }
+
+  var titulo = tipo === 'mayorista' ? 'Venta mayorista' : tipo === 'maple' ? 'Maple suelto' : 'Media docena';
+  openModal(titulo, html);
+
+  // Preview
+  function prev() {
+    var total = 0;
+    var el = ge('v-prev');
+    if (!el) return;
+    if (tipo === 'mayorista') {
+      var c = parseFloat(ge('v-cajones') ? ge('v-cajones').value : 0) || 0;
+      var p = parseFloat(ge('v-precio') ? ge('v-precio').value : 0) || 0;
+      total = c * p;
+    } else if (tipo === 'maple') {
+      var m = parseFloat(ge('v-maples') ? ge('v-maples').value : 0) || 0;
+      var pm = parseFloat(ge('v-precio') ? ge('v-precio').value : 0) || 0;
+      total = m * pm;
+    } else {
+      var q = parseFloat(ge('v-md-cant') ? ge('v-md-cant').value : 0) || 0;
+      var pq = parseFloat(ge('v-precio') ? ge('v-precio').value : 0) || 0;
+      total = q * pq;
+    }
+    if (total > 0) { el.style.display = 'block'; el.textContent = 'Total: ' + fmt(total); }
+    else { el.style.display = 'none'; }
+  }
+  var inputs = ge('modal-body').querySelectorAll('input[type=number]');
+  inputs.forEach(function(inp) { inp.addEventListener('input', prev); });
+  if (tipo === 'maple' && ge('v-tipo')) {
+    ge('v-tipo').addEventListener('change', function() {
+      ge('v-precio').value = ST.config.precios_maple[ge('v-tipo').value] || '';
+      prev();
+    });
+  }
+  prev();
+
+  ge('btn-guard-v').addEventListener('click', function() {
+    var fecha = ge('v-fecha').value;
+    var pago = ge('v-pago').value;
+    var venta = { id: uid(), fecha: fecha, forma_pago: pago, estado: 'pendiente', subtipo: tipo };
+
+    if (tipo === 'mayorista') {
+      var cajones = parseFloat(ge('v-cajones').value) || 0;
+      var precio = parseFloat(ge('v-precio').value) || 0;
+      var tipoH = ge('v-tipo').value;
+      var cliId = ge('v-cliente').value;
+      var cliNuevo = ge('v-cli-nuevo').value.trim();
+      if (!cajones || !precio) { alert('Completa cajones y precio'); return; }
+      var mpNec = cajones * ST.config.maples_x_cajon;
+      if (maplesTotal(tipoH) < mpNec) { alert('Stock insuficiente'); return; }
+      descontarMaples(tipoH, mpNec);
+      if (cliNuevo && !cliId) {
+        var nc = { id: uid(), nombre: cliNuevo, saldo: 0 };
+        ST.clientes.push(nc); cliId = nc.id;
+      }
+      venta.total = cajones * precio;
+      venta.detalle = cajones + ' caj. ' + labelTipo(tipoH);
+      venta.cliente_id = cliId || null;
+      if (cliId) {
+        var cli = ST.clientes.find(function(c) { return c.id === cliId; });
+        if (cli) venta.detalle += ' - ' + cli.nombre;
+      }
+      if (pago === 'cuenta_corriente' && cliId) {
+        var ci = ST.clientes.findIndex(function(c) { return c.id === cliId; });
+        if (ci >= 0) ST.clientes[ci].saldo = (ST.clientes[ci].saldo || 0) + venta.total;
+      } else { venta.estado = 'completo'; }
+
+    } else if (tipo === 'maple') {
+      var maples = parseInt(ge('v-maples').value) || 0;
+      var pm2 = parseFloat(ge('v-precio').value) || 0;
+      var tH2 = ge('v-tipo').value;
+      if (!maples || !pm2) { alert('Completa los campos'); return; }
+      if (maplesTotal(tH2) < maples) { alert('Stock insuficiente. Disponible: ' + maplesTotal(tH2)); return; }
+      descontarMaples(tH2, maples);
+      venta.total = maples * pm2;
+      venta.detalle = maples + ' maple(s) ' + labelTipo(tH2);
+      venta.estado = 'completo';
+
+    } else {
+      var mdCant = parseInt(ge('v-md-cant').value) || 0;
+      var mdP = parseFloat(ge('v-precio').value) || 0;
+      var mdSt = ST.stock.medias_docenas || 0;
+      if (!mdCant || !mdP) { alert('Completa los campos'); return; }
+      if (mdCant > mdSt) { alert('Stock insuficiente. Disponible: ' + mdSt); return; }
+      ST.stock.medias_docenas = mdSt - mdCant;
+      venta.total = mdCant * mdP;
+      venta.detalle = mdCant + ' 1/2 docenas';
+      venta.estado = 'completo';
+    }
+
+    ST.ventas.push(venta);
+    saveST(); closeModal(); renderVentas(); renderStock();
+  });
+}
+
+function toggleEstado(id) {
+  var i = ST.ventas.findIndex(function(v) { return v.id === id; });
+  if (i < 0) return;
+  var estados = ['pendiente', 'parcial', 'completo'];
+  var cur = estados.indexOf(ST.ventas[i].estado);
+  var next = estados[(cur + 1) % 3];
+  if (next === 'completo' && ST.ventas[i].forma_pago === 'cuenta_corriente' && ST.ventas[i].cliente_id) {
+    var ci = ST.clientes.findIndex(function(c) { return c.id === ST.ventas[i].cliente_id; });
+    if (ci >= 0) ST.clientes[ci].saldo = Math.max(0, (ST.clientes[ci].saldo || 0) - ST.ventas[i].total);
+  }
+  ST.ventas[i].estado = next;
+  saveST(); renderVentas();
+}
+
+function eliminarVenta(id) {
+  var v = ST.ventas.find(function(x) { return x.id === id; });
+  if (!v) return;
+  confirmar('Eliminar la venta de ' + fmt(v.total) + '? El stock NO se restaura.', function() {
+    ST.ventas = ST.ventas.filter(function(x) { return x.id !== id; });
+    saveST(); renderVentas();
+  });
+}
+
+function eliminarIngreso(id) {
+  var ing = ST.ingresos.find(function(x) { return x.id === id; });
+  if (!ing) return;
+  confirmar('Eliminar ingreso de ' + ing.cajones + ' cajones de ' + labelTipo(ing.tipo) + '? El stock se restara.', function() {
+    descontarMaples(ing.tipo, ing.cajones * ST.config.maples_x_cajon);
+    ST.ingresos = ST.ingresos.filter(function(x) { return x.id !== id; });
+    saveST(); renderStock();
+  });
+}
+
+// ── CLIENTES ──────────────────────────────────────────────────────────
+function renderClientes() {
+  var deuda = ST.clientes.reduce(function(s, c) { return s + (c.saldo || 0); }, 0);
+  ge('clientes-resumen').innerHTML =
+    '<div class="totals-bar">' +
+    '<div class="t-item"><div class="t-val">' + ST.clientes.length + '</div><div class="t-lbl">Clientes</div></div>' +
+    '<div class="t-item"><div class="t-val red">' + fmt(deuda) + '</div><div class="t-lbl">Total deuda</div></div>' +
+    '<div class="t-item"><button class="btn btn-ghost btn-sm" id="btn-new-cli">+ Nuevo</button></div>' +
+    '</div>';
+  ge('btn-new-cli').addEventListener('click', abrirNuevoCliente);
+
+  if (!ST.clientes.length) {
+    ge('clientes-lista').innerHTML = '<div class="empty">Sin clientes registrados</div>';
+    return;
+  }
+  var tbl = '<table class="tbl"><thead><tr><th>Cliente</th><th class="r">Saldo</th><th></th></tr></thead><tbody>';
+  ST.clientes.forEach(function(c) {
+    var saldo = c.saldo || 0;
+    tbl += '<tr>' +
+      '<td style="color:var(--text);font-weight:600">' + c.nombre + '</td>' +
+      '<td class="r"><span class="badge ' + (saldo > 0 ? 'badge-red' : 'badge-green') + '">' + fmt(saldo) + '</span></td>' +
+      '<td style="display:flex;gap:6px;align-items:center">' +
+        '<button class="btn btn-ghost btn-sm" data-id="' + c.id + '" data-action="pago-cli">Registrar pago</button>' +
+        '<button class="del-btn" data-id="' + c.id + '" data-action="del-cliente">&#x2715;</button>' +
+      '</td>' +
+      '</tr>';
+  });
+  tbl += '</tbody></table>';
+  ge('clientes-lista').innerHTML = tbl;
+}
+
+function abrirNuevoCliente() {
+  var html =
+    '<div class="field"><div class="field-label">Nombre del cliente</div><input type="text" id="nc-nombre" placeholder="Ej: Almacen Don Pepe"></div>' +
+    '<div class="field"><div class="field-label">Deuda inicial $ (opcional)</div><input type="number" id="nc-saldo" value="0" min="0" placeholder="0"></div>' +
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">Si el cliente ya tenia deuda previa, ingresala aca.</div>' +
+    '<button id="btn-guard-cli" class="btn btn-primary">&#x2713; Agregar cliente</button>';
+  openModal('Nuevo cliente', html);
+  ge('btn-guard-cli').addEventListener('click', function() {
+    var nombre = (ge('nc-nombre').value || '').trim();
+    var saldoInicial = parseFloat(ge('nc-saldo').value) || 0;
+    if (!nombre) { alert('Ingresa un nombre'); return; }
+    ST.clientes.push({ id: uid(), nombre: nombre, saldo: saldoInicial });
+    saveST(); closeModal(); renderClientes();
+  });
+}
+
+function abrirPago(cliId) {
+  var c = ST.clientes.find(function(x) { return x.id === cliId; });
+  if (!c) return;
+  var html =
+    '<div class="alert alert-red" style="margin-bottom:12px">Saldo actual: <strong>' + fmt(c.saldo || 0) + '</strong></div>' +
+    '<div class="field"><div class="field-label">Fecha</div><input type="date" id="pago-fecha" value="' + today() + '"></div>' +
+    '<div class="field"><div class="field-label">Monto pagado $</div><input type="number" id="pago-monto" min="0" placeholder="0"></div>' +
+    '<div class="field"><div class="field-label">Forma de pago</div><select id="pago-forma"><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option></select></div>' +
+    '<button id="btn-guard-pago" class="btn btn-primary">&#x2713; Registrar pago</button>';
+  openModal('Pago de ' + c.nombre, html);
+  ge('btn-guard-pago').addEventListener('click', function() {
+    var monto = parseFloat(ge('pago-monto').value) || 0;
+    if (!monto) { alert('Ingresa un monto'); return; }
+    var ci = ST.clientes.findIndex(function(x) { return x.id === cliId; });
+    if (ci < 0) return;
+    ST.clientes[ci].saldo = Math.max(0, (ST.clientes[ci].saldo || 0) - monto);
+    ST.ventas.push({
+      id: uid(), fecha: ge('pago-fecha').value,
+      tipo: 'pago', forma_pago: ge('pago-forma').value,
+      estado: 'completo', total: monto,
+      cliente_id: cliId, detalle: 'Pago - ' + c.nombre
+    });
+    saveST(); closeModal(); renderClientes();
+  });
+}
+
+// ── BALANCE ───────────────────────────────────────────────────────────
+function renderBalance() {
+  var desde = ge('bal-desde').value;
+  var hasta = ge('bal-hasta').value;
+  var ventas = ST.ventas.filter(function(v) {
+    if (v.subtipo === 'pago' || v.tipo === 'pago') return false;
+    if (desde && v.fecha < desde) return false;
+    if (hasta && v.fecha > hasta) return false;
+    return true;
+  });
+  var ingresos = ST.ingresos.filter(function(i) {
+    if (desde && i.fecha < desde) return false;
+    if (hasta && i.fecha > hasta) return false;
+    return true;
+  });
+  var totalV = ventas.reduce(function(s, v) { return s + (v.total || 0); }, 0);
+  var cobrado = ventas.filter(function(v) { return v.estado === 'completo'; }).reduce(function(s, v) { return s + (v.total || 0); }, 0);
+  var pendiente = ventas.filter(function(v) { return v.estado !== 'completo'; }).reduce(function(s, v) { return s + (v.total || 0); }, 0);
+  var efectivo = ventas.filter(function(v) { return v.forma_pago === 'efectivo' && v.estado === 'completo'; }).reduce(function(s, v) { return s + (v.total || 0); }, 0);
+  var transf = ventas.filter(function(v) { return v.forma_pago === 'transferencia' && v.estado === 'completo'; }).reduce(function(s, v) { return s + (v.total || 0); }, 0);
+  var totalC = ingresos.reduce(function(s, i) { return s + (i.costo_total || 0); }, 0);
+  var gan = cobrado - totalC;
+
+  var html =
+    '<div class="kpi-grid">' +
+    '<div class="kpi"><div class="kpi-val">' + fmt(totalV) + '</div><div class="kpi-lbl">Ventas</div></div>' +
+    '<div class="kpi"><div class="kpi-val green">' + fmt(cobrado) + '</div><div class="kpi-lbl">Cobrado</div></div>' +
+    '<div class="kpi"><div class="kpi-val red">' + fmt(pendiente) + '</div><div class="kpi-lbl">Pendiente</div></div>' +
+    '<div class="kpi"><div class="kpi-val ' + (gan >= 0 ? 'green' : 'red') + '">' + fmt(gan) + '</div><div class="kpi-lbl">Ganancia</div></div>' +
+    '</div>' +
+    '<div class="card"><div class="card-title">Cobros por metodo</div>' +
+    '<table class="tbl"><tbody>' +
+    '<tr><td>Efectivo</td><td class="r mono" style="color:var(--green)">' + fmt(efectivo) + '</td></tr>' +
+    '<tr><td>Transferencia</td><td class="r mono" style="color:var(--blue)">' + fmt(transf) + '</td></tr>' +
+    '<tr><td style="color:var(--red)">Pendiente</td><td class="r mono" style="color:var(--red)">' + fmt(pendiente) + '</td></tr>' +
+    '</tbody></table></div>' +
+    '<div class="card"><div class="card-title">Compras del periodo</div>' +
+    '<table class="tbl"><thead><tr><th>Fecha</th><th>Tipo</th><th class="r">Cajones</th><th class="r">Costo</th></tr></thead><tbody>';
+  ingresos.slice().reverse().forEach(function(i) {
+    html += '<tr><td style="font-family:var(--mono);font-size:10px;color:var(--text3)">' + fmtF(i.fecha) + '</td><td>' + labelTipo(i.tipo) + '</td><td class="r mono">' + i.cajones + '</td><td class="r mono">' + fmt(i.costo_total) + '</td></tr>';
+  });
+  html += '<tr><td colspan="3" style="font-weight:700;color:var(--text)">Total compras</td><td class="r mono" style="color:var(--red)">' + fmt(totalC) + '</td></tr>';
+  html += '</tbody></table></div>';
+  ge('balance-content').innerHTML = html;
+}
+
+// ── CONFIG ────────────────────────────────────────────────────────────
+function renderConfig() {
+  var costHtml = '<div class="grid2">';
+  TIPOS.forEach(function(t) {
+    costHtml += '<div class="field"><div class="field-label">' + t.label + '</div><input class="cfg-costo" data-id="' + t.id + '" type="number" value="' + ST.config.costos[t.id] + '" min="0"></div>';
+  });
+  costHtml += '</div>';
+  ge('config-costos').innerHTML = costHtml;
+
+  var maplHtml = '<div class="grid2">';
+  TIPOS.forEach(function(t) {
+    maplHtml += '<div class="field"><div class="field-label">' + t.label + '</div><input class="cfg-maple" data-id="' + t.id + '" type="number" value="' + ST.config.precios_maple[t.id] + '" min="0"></div>';
+  });
+  maplHtml += '</div>';
+  ge('config-maples').innerHTML = maplHtml;
+
+  ge('cfg-cajita').value = ST.config.costo_cajita;
+  ge('cfg-md-precio').value = ST.config.precio_media_docena;
+}
+
+function guardarConfig() {
+  document.querySelectorAll('.cfg-costo').forEach(function(inp) {
+    ST.config.costos[inp.dataset.id] = parseFloat(inp.value) || 0;
+  });
+  document.querySelectorAll('.cfg-maple').forEach(function(inp) {
+    ST.config.precios_maple[inp.dataset.id] = parseFloat(inp.value) || 0;
+  });
+  ST.config.costo_cajita = parseFloat(ge('cfg-cajita').value) || 0;
+  ST.config.precio_media_docena = parseFloat(ge('cfg-md-precio').value) || 0;
+  saveST();
+  var msg = ge('cfg-msg');
+  msg.textContent = 'Guardado correctamente';
+  msg.style.display = 'block';
+  setTimeout(function() { msg.style.display = 'none'; }, 2500);
+}
+
+// ── BACKUP ────────────────────────────────────────────────────────────
+function exportBackup() {
+  var data = JSON.stringify(ST, null, 2);
+  var blob = new Blob([data], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'dori_backup_' + today() + '.json';
+  a.click();
+}
+
+function importBackup(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var d = JSON.parse(e.target.result);
+      if (!d.version) throw new Error('Archivo invalido');
+      ST = d; saveST();
+      var msg = ge('cfg-msg');
+      msg.className = 'alert alert-green';
+      msg.textContent = 'Backup importado correctamente';
+      msg.style.display = 'block';
+      setTimeout(function() { msg.style.display = 'none'; }, 3000);
+      renderConfig(); renderStock();
+    } catch(err) {
+      alert('Error al importar: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function eliminarCliente(id) {
+  var c = ST.clientes.find(function(x) { return x.id === id; });
+  if (!c) return;
+  var saldo = c.saldo || 0;
+  var msg = saldo > 0
+    ? 'Eliminar a ' + c.nombre + '? Tiene un saldo pendiente de ' + fmt(saldo) + '. Esta accion no se puede deshacer.'
+    : 'Eliminar al cliente ' + c.nombre + '?';
+  confirmar(msg, function() {
+    ST.clientes = ST.clientes.filter(function(x) { return x.id !== id; });
+    saveST(); renderClientes();
+  });
+}
+
+// ── DELEGACION DE EVENTOS (un solo listener para toda la app) ─────────
+document.addEventListener('click', function(e) {
+  var el = e.target;
+  var action = el.dataset.action;
+  if (action === 'del-ingreso') { eliminarIngreso(el.dataset.id); return; }
+  if (action === 'del-venta') { eliminarVenta(el.dataset.id); return; }
+  if (action === 'toggle-estado') { toggleEstado(el.dataset.id); return; }
+  if (action === 'pago-cli') { abrirPago(el.dataset.id); return; }
+  if (action === 'del-cliente') { eliminarCliente(el.dataset.id); return; }
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────
+function appInit() {
+  initST();
+  // Nav tabs
+  ge('tab-stock').addEventListener('click', function() { showView('stock'); });
+  ge('tab-ventas').addEventListener('click', function() { showView('ventas'); });
+  ge('tab-clientes').addEventListener('click', function() { showView('clientes'); });
+  ge('tab-balance').addEventListener('click', function() { showView('balance'); });
+  ge('tab-config').addEventListener('click', function() { showView('config'); });
+  ge('tab-backup').addEventListener('click', exportBackup);
+  // Stock
+  ge('btn-ingreso').addEventListener('click', abrirIngreso);
+  ge('btn-fraccionar').addEventListener('click', abrirFraccionar);
+  // Ventas
+  ge('btn-venta-may').addEventListener('click', function() { abrirVenta('mayorista'); });
+  ge('btn-venta-maple').addEventListener('click', function() { abrirVenta('maple'); });
+  ge('btn-venta-md').addEventListener('click', function() { abrirVenta('mediadocena'); });
+  // Balance
+  ge('btn-balance').addEventListener('click', renderBalance);
+  // Config
+  ge('btn-guardar-config').addEventListener('click', guardarConfig);
+  ge('btn-export').addEventListener('click', exportBackup);
+  ge('btn-import-trigger').addEventListener('click', function() { ge('imp-file').click(); });
+  ge('imp-file').addEventListener('change', function() {
+    if (this.files[0]) { importBackup(this.files[0]); this.value = ''; }
+  });
+  // Modal
+  ge('modal-close-btn').addEventListener('click', closeModal);
+  ge('modal-bg').addEventListener('click', function(e) {
+    if (e.target === ge('modal-bg')) closeModal();
+  });
+  // Fechas balance
+  var now = new Date();
+  var y = now.getFullYear();
+  var m = String(now.getMonth() + 1).padStart(2, '0');
+  ge('bal-desde').value = y + '-' + m + '-01';
+  ge('bal-hasta').value = today();
+  // Render inicial
+  renderStock();
+}
+
+// Login
+ge('login-btn').addEventListener('click', checkLogin);
+ge('login-pass').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkLogin();
+});
+
+// Auto-login si ya autenticado
+if (localStorage.getItem(AUTH_KEY) === HASH) {
+  ge('login-screen').style.display = 'none';
+  appInit();
+}
+
+})(); // IIFE - todo encapsulado, sin variables globales
+</script>
+</body>
+</html>
